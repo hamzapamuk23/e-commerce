@@ -1,0 +1,116 @@
+server:
+  port: 9998  # Auth servisi için kullanılan port
+  servlet:
+    context-path: /auth/api/v1
+
+spring:
+  application:
+    name: auth-service
+  config:
+    import: "consul:" 
+  cloud:
+    consul:
+      config:
+        acl-token: 06f819d3-467b-5536-4a66-aa2a7e0f9e9c
+        enabled: true
+        default-context: config  # Varsayılan config dizini altında ayarları alır
+        profile-separator: '-'  # Profil ayırıcı
+      host: localhost  # Consul sunucusunun adresi
+      port: 8500
+      discovery:
+        hostname: localhost
+        port: 9998
+        acl-token: 06f819d3-467b-5536-4a66-aa2a7e0f9e9c
+        health-check-url: http://host.docker.internal:9998/auth/api/v1/actuator/health
+        health-check-interval: 10s  # Sağlık kontrolü aralığı
+        health-check-critical-timeout: 1m  # Sağlık kontrolü başarısız olursa geçecek süre
+        enabled: true
+        register: true
+        service-name: auth-service  # Her mikroservis için farklı bir ad
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/ecommerce-realm
+
+keycloak:
+  realm: ecommerce-realm
+  auth-server-url: http://localhost:8080/auth
+  resource: auth-service
+  credentials:
+    secret: rstWc0bUMf2J3YsQazEUNgAj1v9ONCYY # Keycloak’ta auth-service client'ı için oluşturulan secret anahtar
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info  # Açmak istediğiniz Actuator endpoint'lerini buraya ekleyin
+  endpoint:
+    health:
+      show-details: always  # Health endpoint'inde detayları göster
+
+logging:
+  level:
+    org.springframework.cloud.consul: DEBUG
+    com.eccomerce.auth_service: DEBUG
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		server:
+  port: 9998  # Auth servisi için kullanılan port
+  servlet:
+    context-path: /auth/api/v1
+
+spring:
+  application:
+    name: auth-service
+  config:
+    import: "consul:" 
+  cloud:
+    consul:
+      config:
+        acl-token: f09707cc-0448-794b-98ee-70bf616376bd
+        enabled: true
+        default-context: config  # Varsayılan config dizini altında ayarları alır
+        profile-separator: '-'  # Profil ayırıcı
+      host: localhost  # Consul sunucusunun adresi
+      port: 8500
+      discovery:
+        hostname: localhost
+        port: 9998
+        acl-token: f09707cc-0448-794b-98ee-70bf616376bd
+        health-check-url: http://host.docker.internal:9998/auth/api/v1/actuator/health
+        health-check-interval: 10s  # Sağlık kontrolü aralığı
+        health-check-critical-timeout: 1m  # Sağlık kontrolü başarısız olursa geçecek süre
+        enabled: true
+        register: true
+        service-name: auth-service  # Her mikroservis için farklı bir ad
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, env  # Açmak istediğiniz Actuator endpoint'lerini buraya ekleyin
+  endpoint:
+    health:
+      show-details: always  # Health endpoint'inde detayları göster

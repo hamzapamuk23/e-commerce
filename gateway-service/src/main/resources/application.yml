@@ -1,0 +1,48 @@
+server:
+  port: 8081  # API Gateway'in çalışacağı port
+
+spring:
+  application:
+    name: gateway-service
+  config:
+    import: "consul:"
+  cloud:
+    consul:
+      config:
+        acl-token: f09707cc-0448-794b-98ee-70bf616376bd
+        enabled: true
+        default-context: config  # Varsayılan config dizini altında ayarları alır
+        profile-separator: '-'  # Profil ayırıcı
+      host: localhost  # Consul'ün adresi
+      port: 8500
+      discovery:
+        hostname: host.docker.internal
+        port: 8081
+        acl-token: f09707cc-0448-794b-98ee-70bf616376bd
+        health-check-url: http://host.docker.internal:8081/actuator/health
+        health-check-interval: 10s  # Sağlık kontrolü aralığı
+        health-check-critical-timeout: 1m  # Sağlık kontrolü başarısız olursa geçecek süre
+        enabled: true
+        register: true
+        service-name: gateway-service  # Her mikroservis için farklı bir ad
+    gateway:
+      discovery:
+        locator:
+          enabled: true  # Dinamik servis keşfini etkinleştir
+      routes:
+        - id: auth-service-url
+          uri: lb://auth-service # 'auth-service' Consul'de kayıtlı olan servis adı
+          predicates:
+            - Path=/auth/** # '/auth-service/**' ile başlayan istekleri yönlendirir
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment} # / bu tagdan önceki yazılını temizler. Ama şuan herhangi bir temizle yapmaz. Çünkü birşey yazılı değildir.
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin Access-Control-Allow-Headersß
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info  # Açmak istediğiniz Actuator endpoint'lerini buraya ekleyin
+  endpoint:
+    health:
+      show-details: always  # Health endpoint'inde detayları göster
